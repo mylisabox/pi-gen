@@ -1,7 +1,12 @@
 # pi-gen
 
-_Tool used to create the raspberrypi.org Raspbian images_
+_Tool used to create the mylisabox.app Raspbian images_
 
+This tool is based on the pi-gen tool of the raspberrypi.org Raspbian images.
+It only adds http://repository.nymea.io to the repositories and preinstalls
+L.I.S.A. server in the image.
+
+L.I.S.A. server can be found at https://github.com/mylisabox/lisa-box
 
 ## Dependencies
 

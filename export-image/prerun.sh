@@ -11,6 +11,7 @@ mkdir -p "${ROOTFS_DIR}"
 
 BOOT_SIZE="$((256 * 1024 * 1024))"
 ROOT_SIZE=$(du --apparent-size -s "${EXPORT_ROOTFS_DIR}" --exclude var/cache/apt/archives --exclude boot --block-size=1 | cut -f 1)
+echo "ROOT PARTITION SIZE: ${ROOT_SIZE}"
 
 # All partition sizes and starts will be aligned to this size
 ALIGN="$((4 * 1024 * 1024))"
@@ -18,14 +19,14 @@ ALIGN="$((4 * 1024 * 1024))"
 # some overhead (since actual space usage is usually rounded up to the
 # filesystem block size) and gives some free space on the resulting
 # image.
-ROOT_MARGIN="$(echo "($ROOT_SIZE * 0.2 + 200 * 1024 * 1024) / 1" | bc)"
+ROOT_MARGIN="$(echo "($ROOT_SIZE * 0.2 + 400 * 1024 * 1024) / 1" | bc)"
 
 BOOT_PART_START=$((ALIGN))
 BOOT_PART_SIZE=$(((BOOT_SIZE + ALIGN - 1) / ALIGN * ALIGN))
 ROOT_PART_START=$((BOOT_PART_START + BOOT_PART_SIZE))
-ROOT_PART_SIZE=$(((ROOT_SIZE + ROOT_MARGIN + ALIGN  - 1) / ALIGN * ALIGN))
+ROOT_PART_SIZE=$(((ROOT_SIZE + ROOT_MARGIN + ALIGN - 1) / ALIGN * ALIGN))
 IMG_SIZE=$((BOOT_PART_START + BOOT_PART_SIZE + ROOT_PART_SIZE))
-
+echo "IMAGE SIZE: $IMG_SIZE"
 truncate -s "${IMG_SIZE}" "${IMG_FILE}"
 
 parted --script "${IMG_FILE}" mklabel msdos
@@ -46,16 +47,19 @@ echo "/:     offset $ROOT_OFFSET, length $ROOT_LENGTH"
 
 ROOT_FEATURES="^huge_file"
 for FEATURE in metadata_csum 64bit; do
-	if grep -q "$FEATURE" /etc/mke2fs.conf; then
-	    ROOT_FEATURES="^$FEATURE,$ROOT_FEATURES"
-	fi
+  if grep -q "$FEATURE" /etc/mke2fs.conf; then
+    ROOT_FEATURES="^$FEATURE,$ROOT_FEATURES"
+  fi
 done
-mkdosfs -n boot -F 32 -v "$BOOT_DEV" > /dev/null
-mkfs.ext4 -L rootfs -O "$ROOT_FEATURES" "$ROOT_DEV" > /dev/null
+mkdosfs -I -n boot -F 32 -v "$BOOT_DEV" >/dev/null
+mkfs.ext4 -L rootfs -O "$ROOT_FEATURES" "$ROOT_DEV" >/dev/null
 
 mount -v "$ROOT_DEV" "${ROOTFS_DIR}" -t ext4
 mkdir -p "${ROOTFS_DIR}/boot"
 mount -v "$BOOT_DEV" "${ROOTFS_DIR}/boot" -t vfat
 
+echo "Start rsync 1"
 rsync -aHAXx --exclude /var/cache/apt/archives --exclude /boot "${EXPORT_ROOTFS_DIR}/" "${ROOTFS_DIR}/"
+echo "Start rsync 2"
 rsync -rtx "${EXPORT_ROOTFS_DIR}/boot/" "${ROOTFS_DIR}/boot/"
+echo "Finished"

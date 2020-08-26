@@ -1,0 +1,5 @@
+IMG_NAME=mylisabox-buster
+ENABLE_SSH=1
+FIRST_USER_NAME=lisa
+FIRST_USER_PASS=mylisabox
+TARGET_HOSTNAME=mylisabox
