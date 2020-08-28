@@ -1,5 +1,5 @@
 gcc g++ make
-build-essential git yarn
+build-essential git
 matrixio-malos matrixio-kernel-modules
 libttspico-utils libasound2-dev
 sox libsox-fmt-all alsa-utils libatlas-base-dev

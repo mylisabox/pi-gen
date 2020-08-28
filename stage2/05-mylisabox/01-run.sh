@@ -18,8 +18,8 @@ node --version
 EOF
 
 on_chroot <<EOF
-yarn global add forever
-#npm i forever -g --unsafe-perm
+#yarn global add forever
+npm i forever --only=prod -g --unsafe-perm
 
 if [ ! -d "/var/www" ]; then
   mkdir /var/www
@@ -36,8 +36,8 @@ else
   cd lisa-box || exit
   git pull
 fi
-#npm i --unsafe-perm
-yarn
+npm i --only=prod --unsafe-perm
+#yarn
 echo "L.I.S.A. setup in /var/www/lisa-box"
 
 EOF
@@ -57,8 +57,8 @@ EOF
 #    cd "${plugin}" || exit
 #    git pull
 #  fi
-#  #npm i --unsafe-perm
-#  yarn
+#  npm i --only=prod --unsafe-perm
+#  #yarn
 #EOF
 #done
 
