@@ -9,36 +9,37 @@ on_chroot <<EOF
   ln -fs /usr/local/lib/nodejs/node-v10.22.0-linux-armv7l/bin/node /usr/bin/node;
   ln -fs /usr/local/lib/nodejs/node-v10.22.0-linux-armv7l/bin/npm /usr/bin/npm;
   ln -fs /usr/local/lib/nodejs/node-v10.22.0-linux-armv7l/bin/npx /usr/bin/npx;
+  npm config set prefix /usr/
 
 EOF
 
 on_chroot <<EOF
-npm --version
-node --version
+  npm --version
+  node --version
 EOF
 
 on_chroot <<EOF
-#yarn global add forever
-npm i forever --only=prod -g --unsafe-perm
+  #yarn global add forever
+  npm i -g forever --only=prod --unsafe-perm
 
-if [ ! -d "/var/www" ]; then
-  mkdir /var/www
-fi
+  if [ ! -d "/var/www" ]; then
+    mkdir /var/www
+  fi
 
-cd /var/www || exit
+  cd /var/www || exit
 
-echo "Cloning or update L.I.S.A."
-if [ ! -d "/var/www/lisa-box" ]; then
-  git clone https://github.com/mylisabox/lisa-box
-  cd lisa-box || exit
-  echo "Install L.I.S.A. deps"
-else
-  cd lisa-box || exit
-  git pull
-fi
-npm i --only=prod --unsafe-perm
-#yarn
-echo "L.I.S.A. setup in /var/www/lisa-box"
+  echo "Cloning or update L.I.S.A."
+  if [ ! -d "/var/www/lisa-box" ]; then
+    git clone https://github.com/mylisabox/lisa-box
+    cd lisa-box || exit
+    echo "Install L.I.S.A. deps"
+  else
+    cd lisa-box || exit
+    git pull
+  fi
+  npm i --only=prod --unsafe-perm
+  #yarn
+  echo "L.I.S.A. setup in /var/www/lisa-box"
 
 EOF
 
